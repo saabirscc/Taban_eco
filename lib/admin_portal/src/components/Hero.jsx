@@ -14,9 +14,9 @@ const API_BASE =
  */
 
 const HeroSection = () => {
-  const [cleanups, setCleanups] = useState([]);   // Cleanup[]
+  const [cleanups, setCleanups] = useState([]);   
   const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState(null); // string | null
+  const [error, setError]       = useState(null); 
 
   useEffect(() => {
     const ctrl = new AbortController();

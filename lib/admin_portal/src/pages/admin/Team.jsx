@@ -1,10 +1,10 @@
 import { Linkedin, Twitter, Github } from 'lucide-react';
 
 // Using placeholder.cc service for consistent placeholder images
-const team1 = 'https://via.placeholder.com/300/008000/FFFFFF?text=SC';
-const team2 = 'https://via.placeholder.com/300/008000/FFFFFF?text=MR';
-const team3 = 'https://via.placeholder.com/300/008000/FFFFFF?text=ET';
-const team4 = 'https://via.placeholder.com/300/008000/FFFFFF?text=AK';
+const team1 = 'https://i.pinimg.com/736x/a7/b8/65/a7b86534cfa9889a9dd72e99c10acbf3.jpg';
+const team2 = 'https://i.pinimg.com/736x/4a/b2/af/4ab2af26e00092ca45805920666d5a3e.jpg';
+const team3 = 'https://i.pinimg.com/736x/c1/4b/cf/c14bcffa07a72439ab9cba58811f94da.jpg';
+const team4 = 'https://i.pinimg.com/736x/a1/18/2f/a1182f1dcb1e9afda517026981fa826e.jpg';
 
 const TeamSection = () => {
   const teamMembers = [
@@ -20,7 +20,7 @@ const TeamSection = () => {
       }
     },
     {
-      name: 'tacbaan tacbaan lagu daray',
+      name: 'Anaz Abdi Dhowrane',
       role: 'Team Lead',
       image: team2,
       quote: 'Leading change, one cleanup at a time.',
@@ -31,7 +31,7 @@ const TeamSection = () => {
       }
     },
     {
-      name: 'tacbaan tacbaan lagu daray',
+      name: 'Sabirin Mohamud Adan',
       role: 'Environmental Specialist',
       image: team3,
       quote: 'Every small action creates ripples of positive change.',
@@ -42,7 +42,7 @@ const TeamSection = () => {
       }
     },
     {
-      name: 'Alex Kim',
+      name: 'Isse Adam Abdirahman',
       role: 'tacbaan tacbaan lagu daray',
       image: team4,
       quote: 'Designing experiences that inspire environmental action.',

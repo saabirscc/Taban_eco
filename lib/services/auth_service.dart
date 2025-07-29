@@ -3,7 +3,7 @@
 // ──────────────────────────────────────────────────────────────
 //  Centralised auth helper: registration, login, token storage,
 //  profile fetch, and a tiny JWT decoder that gives you the
-//  current user-id.
+//  current user‑id.
 // ──────────────────────────────────────────────────────────────
 
 import 'dart:convert';
@@ -15,19 +15,29 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 
 class AuthService {
-  static const _browserBase = 'http://localhost:5000/api';      // web build only
+  static const _browserBase  = 'http://localhost:5000/api';      // web build only
   static const _emulatorBase = 'http://10.0.2.2:5000/api';       // Android emulator
-  static const _lanBase      = 'http://192.168.1.12:5000/api';   // real device on same WiFi
+  static const _lanBase      = 'http://192.168.1.12:5000/api';   // real device on same Wi‑Fi
 
+  /// Picks the right base‑URL at run‑time.
   static String get baseUrl {
-    // allow override
+    // 1) compile‑time override → dart ‑‑define API_URL=https://prod…
     const env = String.fromEnvironment('API_URL');
     if (env.isNotEmpty) return env;
 
+    // 2) web build (Flutter web or Next.js admin portal hitting same server)
     if (kIsWeb) return _browserBase;
-    if (Platform.isAndroid || Platform.isIOS) return _lanBase;   // <-- change here
-    return _browserBase;
+
+    // 3) Android emulator uses the magic host‑loopback 10.0.2.2
+    if (Platform.isAndroid) return _emulatorBase;
+
+    // 4) iOS simulator can hit localhost directly; real devices need LAN IP
+    if (Platform.isIOS) return _browserBase;
+
+    // 5) Fallback for any other platform / real devices
+    return _lanBase;
   }
+
   /* ───────────── token helpers ───────────── */
   static Future<String?> getToken() async =>
       (await SharedPreferences.getInstance()).getString('token');
@@ -83,44 +93,37 @@ class AuthService {
   }
 
   // ── Login ──────────────────────────────────────────────────
-// ── Login ──────────────────────────────────────────────────
-static Future<User> login({
-  required String email,
-  required String password,
-}) async {
-  final res = await http.post(
-    Uri.parse('$baseUrl/auth/login'),
-    headers: _json(),
-    body: jsonEncode({'email': email, 'password': password}),
-  );
+  static Future<User> login({
+    required String email,
+    required String password,
+  }) async {
+    final res = await http.post(
+      Uri.parse('$baseUrl/auth/login'),
+      headers: _json(),
+      body: jsonEncode({'email': email, 'password': password}),
+    );
 
-  if (res.statusCode == 200) {
-    final body = jsonDecode(res.body);
+    if (res.statusCode == 200) {
+      final body = jsonDecode(res.body);
 
-    // 1) build the User object up‑front (we need role below)
-    final user = User.fromJson(body['user'] ?? {});
+      // 1) build the User object up‑front (we need role below)
+      final user = User.fromJson(body['user'] ?? {});
 
-    // 2) MOBILE‑SIDE role gate  ⚠️
-    //
-    // • Mobile app == normal users only
-    // • Web (kIsWeb) == admin portal (handled in React side)
-    //
-    // If you ever publish the Flutter build to web you can flip the check,
-    // or add a compile‑time dart‑define.
-    if (!kIsWeb && (user.role?.toLowerCase() == 'admin')) {
-      throw Exception('Admins must sign‑in via the web portal.');
+      // 2) MOBILE‑SIDE role gate  ⚠️
+      if (!kIsWeb && (user.role?.toLowerCase() == 'admin')) {
+        throw Exception('Admins must sign‑in via the web portal.');
+      }
+
+      // 3) persist the token
+      if (body['token'] != null) await saveToken(body['token']);
+
+      return user; // success!
     }
 
-    // 3) persist the token as before
-    if (body['token'] != null) await saveToken(body['token']);
-
-    return user;                      // success!
+    _err(res, 'Login failed');
   }
 
-  _err(res, 'Login failed');
-}
-
-  // ── Forgot-password helpers (OTP flow) ─────────────────────
+  // ── Forgot‑password helpers (OTP flow) ─────────────────────
   static Future<void> forgotPasswordRequestOtp({required String email}) async {
     final res = await http.post(
       Uri.parse('$baseUrl/auth/forgot-password'),
@@ -160,7 +163,6 @@ static Future<User> login({
   }
 
   /* ───────────── Fetch current user profile ───────────── */
-  /// Calls GET /api/users/me and returns a fresh `User`.
   static Future<User> fetchProfile() async {
     final token = await getToken();
     if (token == null) throw Exception('Not authenticated');
@@ -169,14 +171,12 @@ static Future<User> login({
       headers: _json(token),
     );
     if (res.statusCode == 200) {
-      final body = jsonDecode(res.body);
-      return User.fromJson(body);
+      return User.fromJson(jsonDecode(res.body));
     }
     _err(res, 'Fetch profile failed');
   }
 
-  /* ───────────── New: Update profile ───────────── */
-  /// Calls PUT /api/users/me with the updated fields.
+  /* ───────────── Update profile ───────────── */
   static Future<User> updateProfile({
     String? fullName,
     String? email,
@@ -207,8 +207,7 @@ static Future<User> login({
     }
   }
 
-  /* ───────────── New: Upload profile picture ───────────── */
-  /// Calls POST /api/users/me/avatar via multipart to upload an image.
+  /* ───────────── Upload profile picture ───────────── */
   static Future<String> uploadProfilePicture(File file) async {
     final token = await getToken();
     if (token == null) throw Exception('Not authenticated');
@@ -223,45 +222,40 @@ static Future<User> login({
     final streamed = await req.send();
     if (streamed.statusCode == 200) {
       final txt = await streamed.stream.bytesToString();
-      final json = jsonDecode(txt);
-      return json['profilePicture'] as String;
+      return jsonDecode(txt)['profilePicture'] as String;
     } else {
       throw Exception('Image upload failed: ${streamed.statusCode}');
     }
   }
 
-  /* ═══════════════════════ JWT → current user-id ══════════════════════ */
-
-  // adds missing “=” padding so every Base64URL segment length is %4 == 0
+  /* ═════════════ JWT → current user‑id ═════════════ */
   static String _fixBase64(String str) =>
       str.padRight(str.length + ((4 - str.length % 4) % 4), '=');
 
-  /// Return the user-id stored inside the JWT – or null when not logged in.
   static Future<String?> getCurrentUserId() async {
     final token = await getToken();
     if (token == null) return null;
 
     final parts = token.split('.');
-    if (parts.length != 3) return null;       // malformed
+    if (parts.length != 3) return null;
 
     try {
       final payloadStr = utf8.decode(
         base64Url.decode(_fixBase64(parts[1])),
       );
       final payload = jsonDecode(payloadStr);
-
-      return payload['_id']             ??
-             payload['id']              ??
-             payload['userId']          ??
-             payload['sub']             ??
+      return payload['_id'] ??
+             payload['id'] ??
+             payload['userId'] ??
+             payload['sub'] ??
              (payload['user']?['_id']);
     } catch (_) {
-      await clearToken(); // bad or expired → wipe
+      await clearToken();
       return null;
     }
   }
 
-  /* ───────────── token-link reset (optional) ───────────── */
+  /* ───────────── token‑link reset (optional) ───────────── */
   static Future<void> resetByToken({
     required String token,
     required String newPassword,
@@ -275,6 +269,8 @@ static Future<User> login({
   }
 
   /* ═════════════ positional wrappers (legacy UI) ═════════════ */
+  // These keep old screens working. Delete them once every call‑site uses
+  // the newer named‑parameter versions.
 
   static Future<User> loginPos(String email, String password) =>
       login(email: email, password: password);
@@ -306,7 +302,7 @@ static Future<User> login({
         newPassword : newPass,
       );
 
-  /* ═══════════════════ internal error helper ════════════════════ */
+  /* ═══════════ internal error helper ═══════════ */
   static Never _err(http.Response r, String msg) {
     final ct = r.headers['content-type'] ?? '';
     if (ct.contains('application/json')) {
@@ -321,7 +317,7 @@ static Future<User> login({
   }
 }
 
-/* ───────── global shims used by some old screens ───────── */
+/* ───────── global shims used by very old files ───────── */
 Future<User> login(String email, String password) =>
     AuthService.loginPos(email, password);
 

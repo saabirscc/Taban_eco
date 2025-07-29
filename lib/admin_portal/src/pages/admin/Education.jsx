@@ -132,7 +132,14 @@ export default function Education() {
             <div className="aspect-video bg-gray-100">
               {p.kind==="image"
                 ? <img src={p.fileUrl} alt={p.title} className="object-cover w-full h-full"/>
-                : <video src={p.fileUrl} poster={p.thumbUrl} controls className="object-cover w-full h-full"/>}
+                : <video
+  src={p.fileUrl}
+  poster={p.thumbUrl}
+  controls
+  preload="metadata"              // 👈 stops full download on first render
+  style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+/>
+}
             </div>
 
             <div className="p-4 space-y-2">

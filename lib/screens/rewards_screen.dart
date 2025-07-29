@@ -30,8 +30,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
     final userId      = profile.id;
     final badges      = await RewardService.fetchUserRewards(userId);
     final myCreated   = await CleanupService.fetchMyCleanups();
-    final allCleanups = await CleanupService.fetchCleanups();
-
+  final allCleanups = await CleanupService.fetchPublicCleanups();
     final volCount = allCleanups
         .where((c) => c.volunteers.contains(userId))
         .length;

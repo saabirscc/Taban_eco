@@ -6,7 +6,6 @@ import '../providers/auth_provider.dart';
 import '../models/cleanup.dart';
 import '../models/volunteer.dart';
 import '../services/cleanup_service.dart';
-import '../services/auth_service.dart';
 import 'cleanup_form_screen.dart';
 import 'scheduled_map_view.dart';
 
@@ -73,7 +72,7 @@ class _ScheduledListScreenState extends State<ScheduledListScreen> {
   @override
   void initState() {
     super.initState();
-    _future = CleanupService.fetchCleanups();
+   _future = CleanupService.fetchPublicCleanups();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final me = context.read<AuthProvider>().userId;
       if (mounted) setState(() => _myUserId = me);
@@ -81,7 +80,7 @@ class _ScheduledListScreenState extends State<ScheduledListScreen> {
   }
 
   Future<void> _refresh() async =>
-      setState(() => _future = CleanupService.fetchCleanups());
+    setState(() => _future = CleanupService.fetchPublicCleanups()); 
 
   Future<void> _toggleVolunteer(Cleanup c) async {
     if (_myUserId == null || c.createdById == _myUserId) return;
@@ -89,7 +88,12 @@ class _ScheduledListScreenState extends State<ScheduledListScreen> {
     List<Volunteer> updated = isVol
         ? await CleanupService.leaveCleanup(c.id)
         : await CleanupService.joinCleanup(c.id);
-    setState(() => c.volunteers = updated.map((v) => v.id).toList());
+    setState(() {
+      // mutate the existing list rather than reassigning
+      c.volunteers
+        ..clear()
+        ..addAll(updated.map((v) => v.id));
+    });
   }
 
   @override
@@ -137,7 +141,7 @@ class _ScheduledListScreenState extends State<ScheduledListScreen> {
             }).toList();
 
             if (items.isEmpty) {
-              return const Center(child: Text('No scheduled or approved clean-ups'));
+              return const Center(child: Text('No scheduled or approved clean‑ups'));
             }
 
             if (_showMap) {
@@ -152,11 +156,11 @@ class _ScheduledListScreenState extends State<ScheduledListScreen> {
                 final c = items[i];
                 final isOwner = _myUserId != null && c.createdById == _myUserId;
                 return _CleanupCard(
-                  cleanup       : c,
-                  currentUserId : _myUserId,
-                  isOwner       : isOwner,
+                  cleanup           : c,
+                  currentUserId     : _myUserId,
+                  isOwner           : isOwner,
                   onVolunteerToggled: () => _toggleVolunteer(c),
-                  onTap: () async {
+                  onTap             : () async {
                     final changed = await Navigator.push<bool>(
                       context,
                       MaterialPageRoute(builder: (_) => CleanupFormScreen(cleanup: c)),
@@ -173,7 +177,6 @@ class _ScheduledListScreenState extends State<ScheduledListScreen> {
   }
 }
 
-/* ───────────────────── card widget ───────────────────── */
 class _CleanupCard extends StatelessWidget {
   final Cleanup      cleanup;
   final String?      currentUserId;
@@ -193,7 +196,6 @@ class _CleanupCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme    = Theme.of(context).colorScheme;
-
     final statusStr = _asString(cleanup.status).capitalize();
     final isPending = statusStr.toLowerCase() == 'pending';
     final date      = _asDate(cleanup.scheduledDate);
@@ -222,7 +224,6 @@ class _CleanupCard extends StatelessWidget {
           child: IntrinsicHeight(
             child: Row(
               children: [
-                // ← updated thumbnail
                 if (photoUrl != null && photoUrl.isNotEmpty)
                   ClipRRect(
                     borderRadius: const BorderRadius.only(
@@ -321,19 +322,17 @@ class _CleanupCard extends StatelessWidget {
                                   ? _lightMint
                                   : _statusColor(statusStr, scheme).withOpacity(.15),
                             ),
-                            Builder(builder: (_) {
-                              final bg   = _severityBg(sevLower);
-                              final tCol = (sevLower == 'moderate' || sevLower == 'high')
-                                  ? Colors.white
-                                  : _borderGreen;
-                              return Chip(
-                                label: Text(sevRaw.capitalize(),
-                                    style: TextStyle(color: tCol)),
-                                padding: EdgeInsets.zero,
-                                visualDensity: VisualDensity.compact,
-                                backgroundColor: bg,
-                              );
-                            }),
+                            Chip(
+                              label: Text(sevRaw.capitalize()),
+                              padding: EdgeInsets.zero,
+                              visualDensity: VisualDensity.compact,
+                              backgroundColor: _severityBg(sevLower),
+                              labelStyle: TextStyle(
+                                color: (sevLower == 'moderate' || sevLower == 'high')
+                                    ? Colors.white
+                                    : _borderGreen,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 12),

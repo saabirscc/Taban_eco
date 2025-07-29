@@ -20,7 +20,7 @@ const Navbar = () => {
           <div className="flex items-center space-x-2">
             <Recycle className="w-6 h-6 text-green-600" />
             <span className="text-xl font-bold text-gray-800">
-              Clean<span className="text-green-600">City</span>
+              Eco<span className="text-green-600">Volunteer</span>
             </span>
           </div>
 

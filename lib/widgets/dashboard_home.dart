@@ -1,8 +1,10 @@
+// lib/widgets/dashboard_home.dart
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../models/education_content.dart';
 import '../models/user.dart';
@@ -38,7 +40,8 @@ class _DashboardHomeState extends State<DashboardHome> {
     final user = context.watch<AuthProvider>().user;
     if (user == null) {
       return const Center(
-          child: Text('No user logged in', style: TextStyle(fontSize: 18)));
+        child: Text('No user logged in', style: TextStyle(fontSize: 18)),
+      );
     }
 
     return RefreshIndicator(
@@ -62,8 +65,6 @@ class _DashboardHomeState extends State<DashboardHome> {
     );
   }
 
-  /* ─────────────  FEED  ───────────── */
-
   Widget _feed() => FutureBuilder<List<EducationContent>>(
         future: _eduFuture,
         builder: (_, snap) {
@@ -74,8 +75,11 @@ class _DashboardHomeState extends State<DashboardHome> {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 40),
               child: Center(
-                  child: Text('Failed to load content',
-                      style: TextStyle(color: Colors.red.shade700))),
+                child: Text(
+                  'Failed to load content',
+                  style: TextStyle(color: Colors.red.shade700),
+                ),
+              ),
             );
           }
           final items = snap.data ?? [];
@@ -83,15 +87,18 @@ class _DashboardHomeState extends State<DashboardHome> {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 40),
               child: Center(
-                  child: Text('No educational content yet',
-                      style: TextStyle(color: Colors.grey.shade600))),
+                child: Text(
+                  'No educational content yet',
+                  style: TextStyle(color: Colors.grey.shade600),
+                ),
+              ),
             );
           }
-          return Column(children: items.map((e) => _FeedCard(item: e)).toList());
+          return Column(
+            children: items.map((e) => _FeedCard(item: e)).toList(),
+          );
         },
       );
-
-  /* ─────────────  HEADER + STATS  ───────────── */
 
   Widget _greeting(User user) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,23 +138,22 @@ class _DashboardHomeState extends State<DashboardHome> {
         ),
       );
 
-  Widget _infoRow(IconData icon, String label, String value) => Row(
+  Widget _infoRow(IconData i, String l, String v) => Row(
         children: [
-          Icon(icon, color: Colors.green.shade700),
+          Icon(i, color: Colors.green.shade700),
           const SizedBox(width: 15),
-          Text('$label:',
-              style:
-                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+          Text('$l:',
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(value,
+            child: Text(v,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontSize: 16, color: Colors.black87)),
           ),
         ],
       );
 
-  Widget _statsRow(User user) => Column(
+  Widget _statsRow(User u) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Your Activity',
@@ -158,37 +164,34 @@ class _DashboardHomeState extends State<DashboardHome> {
           const SizedBox(height: 15),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _statCard('${user.cleanupsDone}', 'Cleanups Done',
-                    Icons.cleaning_services),
-                _statCard('${user.points}', 'Points Earned', Icons.star),
-                _statCard('${user.badgesCount}', 'Badges', Icons.emoji_events),
-              ],
-            ),
-          ),
+            child: Row(children: [
+              _statCard('${u.cleanupsDone}', 'Cleanups', Icons.cleaning_services),
+              _statCard('${u.points}', 'Points', Icons.star),
+              _statCard('${u.badgesCount}', 'Badges', Icons.emoji_events),
+            ]),
+          )
         ],
       );
 
-  Widget _statCard(String value, String label, IconData icon) => Card(
+  Widget _statCard(String v, String l, IconData i) => Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         elevation: 3,
         shadowColor: Colors.green.shade100,
         margin: const EdgeInsets.only(right: 14),
         child: Container(
-          width: 120,
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+          width: 110,
+          padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
           child: Column(
             children: [
-              Icon(icon, size: 36, color: Colors.green.shade700),
-              const SizedBox(height: 10),
-              Text(value,
+              Icon(i, size: 30, color: Colors.green.shade700),
+              const SizedBox(height: 6),
+              Text(v,
                   style: const TextStyle(
-                      fontSize: 22,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87)),
-              const SizedBox(height: 5),
-              Text(label,
+              const SizedBox(height: 4),
+              Text(l,
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.black54)),
             ],
@@ -209,28 +212,34 @@ class _DashboardHomeState extends State<DashboardHome> {
       );
 }
 
-/* ═════════════════════════════════════════════════════ */
-/*                      FEED CARD                       */
-/* ═════════════════════════════════════════════════════ */
-
 class _FeedCard extends StatefulWidget {
-  final EducationContent item;
   const _FeedCard({Key? key, required this.item}) : super(key: key);
+
+  final EducationContent item;
 
   @override
   State<_FeedCard> createState() => _FeedCardState();
 }
 
-class _FeedCardState extends State<_FeedCard> {
+class _FeedCardState extends State<_FeedCard>
+    with AutomaticKeepAliveClientMixin {
   VideoPlayerController? _vp;
   bool _processingLike = false;
+  bool _initialAutoStarted = false;
 
   @override
   void initState() {
     super.initState();
     if (widget.item.kind == 'video') {
-      _vp = VideoPlayerController.networkUrl(Uri.parse(widget.item.fileUrl))
-        ..initialize().then((_) => setState(() {}));
+      _vp = VideoPlayerController.networkUrl(
+        Uri.parse(widget.item.fileUrl!),
+        httpHeaders: {'Accept': 'bytes'},  // ensures range requests
+      )
+        ..setLooping(true)
+        ..initialize().then((_) {
+          _vp!.setVolume(0); // silent → iOS autoplay allowed
+          setState(() {});
+        });
     }
   }
 
@@ -238,6 +247,24 @@ class _FeedCardState extends State<_FeedCard> {
   void dispose() {
     _vp?.dispose();
     super.dispose();
+  }
+
+  void _handleVisibility(VisibilityInfo info) {
+    if (_vp == null || !_vp!.value.isInitialized) return;
+
+    if (!_initialAutoStarted &&
+        info.visibleFraction >= 0.6 &&
+        !_vp!.value.isPlaying) {
+      _vp!.play();
+      _initialAutoStarted = true;
+      return;
+    }
+
+    if (info.visibleFraction >= 0.6 && !_vp!.value.isPlaying) {
+      _vp!.play();
+    } else if (info.visibleFraction < 0.6 && _vp!.value.isPlaying) {
+      _vp!.pause();
+    }
   }
 
   Future<void> _toggleLike() async {
@@ -251,34 +278,43 @@ class _FeedCardState extends State<_FeedCard> {
     });
   }
 
+  Future<void> _addComment(String text) async {
+    final c = await EducationService.addComment(widget.item.id, text);
+    setState(() => widget.item.comments.add(c));
+  }
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final e = widget.item;
 
     Widget media;
-    if (e.kind == 'image') {
+    if (e.kind == 'comparison' &&
+        e.beforeImages.isNotEmpty &&
+        e.afterImages.isNotEmpty) {
+      media = Row(
+        children: [
+          _thumb(e.beforeImages.first),
+          const SizedBox(width: 4),
+          _thumb(e.afterImages.first),
+        ],
+      );
+    } else if (e.kind == 'image') {
       media = CachedNetworkImage(
-        imageUrl: e.fileUrl,
+        imageUrl: e.fileUrl!,
         fit: BoxFit.cover,
         progressIndicatorBuilder: (_, __, ___) =>
             Container(color: Colors.grey.shade200),
-        errorWidget: (_, __, ___) =>
-            Container(color: Colors.grey.shade200, child: const Icon(Icons.image)),
+        errorWidget: (_, __, ___) => Container(
+            color: Colors.grey.shade200, child: const Icon(Icons.broken_image)),
       );
     } else if (_vp != null && _vp!.value.isInitialized) {
-      media = GestureDetector(
-        onTap: () => setState(
-            () => _vp!.value.isPlaying ? _vp!.pause() : _vp!.play()),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            AspectRatio(
-              aspectRatio: _vp!.value.aspectRatio,
-              child: VideoPlayer(_vp!),
-            ),
-            if (!_vp!.value.isPlaying)
-              const Icon(Icons.play_circle, size: 64, color: Colors.white),
-          ],
+      media = VisibilityDetector(
+        key: Key('video-${e.id}'),
+        onVisibilityChanged: _handleVisibility,
+        child: AspectRatio(
+          aspectRatio: _vp!.value.aspectRatio,
+          child: VideoPlayer(_vp!),
         ),
       );
     } else {
@@ -290,49 +326,53 @@ class _FeedCardState extends State<_FeedCard> {
     }
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.only(bottom: 22),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       clipBehavior: Clip.antiAlias,
-      elevation: 3,
+      elevation: 4,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           media,
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-            child: Text(e.title,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 4),
+            child:
+                Text(e.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
           ),
           if (e.description.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: Text(e.description,
-                  style: TextStyle(color: Colors.grey.shade800)),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+              child: Text(e.description, style: TextStyle(color: Colors.grey[800])),
             ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+            padding: const EdgeInsets.fromLTRB(6, 4, 6, 8),
             child: Row(
               children: [
                 IconButton(
-                  icon: Icon(Icons.thumb_up,
-                      color: e.likedByMe
-                          ? Colors.green.shade700
-                          : Colors.grey.shade600),
+                  icon: Icon(
+                    e.likedByMe ? Icons.favorite : Icons.favorite_border,
+                    color: e.likedByMe ? Colors.red : Colors.grey.shade600,
+                  ),
                   onPressed: _toggleLike,
                 ),
-                Text('${e.likeCount}'),
-                const SizedBox(width: 16),
-                Icon(Icons.chat_bubble_outline,
-                    size: 20, color: Colors.grey.shade600),
+                Text('${e.likeCount}',
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.comment_outlined, size: 20, color: Colors.grey),
+                  onPressed: () => showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (_) => CommentSheet(onSend: _addComment),
+                  ),
+                ),
                 Text(' ${e.comments.length}'),
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.open_in_new),
                   onPressed: () => Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (_) => EducationPlayerScreen(item: e)),
+                    MaterialPageRoute(builder: (_) => EducationPlayerScreen(item: e)),
                   ),
                 ),
               ],
@@ -342,4 +382,79 @@ class _FeedCardState extends State<_FeedCard> {
       ),
     );
   }
+
+  Widget _thumb(String url) => Expanded(
+        child: CachedNetworkImage(
+          imageUrl: url,
+          fit: BoxFit.cover,
+          height: 150,
+          progressIndicatorBuilder: (_, __, ___) =>
+              Container(height: 150, color: Colors.grey.shade200),
+          errorWidget: (_, __, ___) => Container(
+              height: 150,
+              color: Colors.grey.shade200,
+              child: const Icon(Icons.broken_image)),
+        ),
+      );
+
+  @override
+  bool get wantKeepAlive => true;
+}
+
+class CommentSheet extends StatefulWidget {
+  const CommentSheet({super.key, required this.onSend});
+  final Future<void> Function(String text) onSend;
+
+  @override
+  State<CommentSheet> createState() => _CommentSheetState();
+}
+
+class _CommentSheetState extends State<CommentSheet> {
+  final _ctl = TextEditingController();
+  bool _sending = false;
+
+  Future<void> _submit() async {
+    if (_ctl.text.trim().isEmpty || _sending) return;
+    setState(() => _sending = true);
+    await widget.onSend(_ctl.text.trim());
+    if (mounted) {
+      _ctl.clear();
+      setState(() => _sending = false);
+      Navigator.pop(context);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: MediaQuery.of(context).viewInsets,
+        child: SafeArea(
+          top: false,
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _ctl,
+                  maxLines: 3,
+                  minLines: 1,
+                  decoration: const InputDecoration(
+                    hintText: 'Add a comment…',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 14),
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: _sending
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.send),
+                onPressed: _submit,
+              )
+            ],
+          ),
+        ),
+      );
 }

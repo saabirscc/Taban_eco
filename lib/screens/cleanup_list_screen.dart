@@ -1,44 +1,44 @@
+// lib/screens/cleanup_list_screen.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/cleanup.dart';
 import '../services/cleanup_service.dart';
 import 'cleanup_form_screen.dart';
 
-/* ───── brand colours ─────────────────────────────────────────── */
-const _borderGreen = Color(0xFF2FAC40);      // left-card border
-const _lightMint   = Color(0xFFE5ECE0);      // bg of Pending chip
-const _lightGreen  = Color(0xFFB6D5A5);      // bg of Low severity
-const _orange      = Color(0xFFFF6B00);      // bg of Moderate severity
-const _highRed     = Color(0xFFD32F2F);      // bg of High severity
+/* ───── palette ─────────────────────────────────────────── */
+const _borderGreen = Color(0xFF2FAC40);
+const _lightMint   = Color(0xFFE5ECE0);
+const _lightGreen  = Color(0xFFB6D5A5);
+const _orange      = Color(0xFFFF6B00);
+const _highRed     = Color(0xFFD32F2F);
 
-/* ───── helpers still used elsewhere ──────────────────────────── */
+/* ───── helpers ─────────────────────────────────────────── */
 Color _statusColor(String status, ColorScheme scheme) {
   switch (status.toLowerCase()) {
-    case 'completed':
-      return scheme.primary;
-    case 'scheduled':
-      return scheme.tertiary;
+    case 'completed': return scheme.primary;
+    case 'scheduled': return scheme.tertiary;
     case 'rejected':
-    case 'cancelled':
-      return scheme.error;
-    default: // pending
-      return _borderGreen;
+    case 'cancelled': return scheme.error;
+    default:          return _borderGreen;
   }
 }
 
 Color _severityBg(String sev) {
   switch (sev.toLowerCase()) {
-    case 'moderate':
-      return _orange;
-    case 'high':
-      return _highRed;
-    default: // low
-      return _lightGreen;
+    case 'moderate': return _orange;
+    case 'high':     return _highRed;
+    default:         return _lightGreen;
   }
 }
 
-/*────────────────── main screen ──────────────────*/
+/// Make sure we can display the image no matter if the backend
+/// returned a full URL or just `/uploads/…`
+String _absolute(String url) {
+  if (url.startsWith('http')) return url;
+  return '${CleanupService.baseUrl}$url';
+}
 
+/* ───── screen ─────────────────────────────────────────── */
 class CleanupListScreen extends StatefulWidget {
   const CleanupListScreen({Key? key}) : super(key: key);
 
@@ -92,6 +92,8 @@ class _CleanupListScreenState extends State<CleanupListScreen> {
 
             return ListView.separated(
               padding: const EdgeInsets.fromLTRB(16, 24, 16, 120),
+              itemCount: items.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 14),
               itemBuilder: (_, i) => _CleanupCard(
                 cleanup: items[i],
                 onTap: () async {
@@ -104,15 +106,13 @@ class _CleanupListScreenState extends State<CleanupListScreen> {
                   if (changed == true) _refresh();
                 },
               ),
-              separatorBuilder: (_, __) => const SizedBox(height: 14),
-              itemCount: items.length,
             );
           },
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: scheme.primary,
-        icon: const Icon(Icons.add),
+        icon : const Icon(Icons.add),
         label: const Text('New'),
         onPressed: () async {
           final changed = await Navigator.push<bool>(
@@ -126,107 +126,56 @@ class _CleanupListScreenState extends State<CleanupListScreen> {
   }
 }
 
-/*────────────────── card widget ──────────────────*/
-
+/* ───── card ─────────────────────────────────────────── */
 class _CleanupCard extends StatelessWidget {
   final Cleanup cleanup;
   final VoidCallback onTap;
-
-  const _CleanupCard({
-    Key? key,
-    required this.cleanup,
-    required this.onTap,
-  }) : super(key: key);
+  const _CleanupCard({Key? key, required this.cleanup, required this.onTap})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final status = cleanup.status.capitalize();
-    final isPending = status.toLowerCase() == 'pending';
+    final scheme    = Theme.of(context).colorScheme;
+    final statusCap = cleanup.status.capitalize();
+    final isPending = cleanup.status.toLowerCase() == 'pending';
+
+    /* -------- decide thumbnail -------- */
+    String? thumb;
+    if (cleanup.beforeImages.isNotEmpty) {
+      thumb = cleanup.beforeImages.first;
+    } else if (cleanup.photoUrls.isNotEmpty) {
+      thumb = cleanup.photoUrls.first;
+    }
 
     return Container(
       decoration: BoxDecoration(
-        border: Border(
-          left: BorderSide(
-            color: _borderGreen,
-            width: 5,
-          ),
-        ),
+        border: Border(left: BorderSide(color: _borderGreen, width: 5)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Material(
         elevation: 2,
-        borderRadius: BorderRadius.circular(16),
         color: scheme.surface,
+        borderRadius: BorderRadius.circular(16),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
           child: IntrinsicHeight(
             child: Row(
               children: [
-                // thumbnail with placeholder
-                if (cleanup.photoUrls.isNotEmpty) ...[
-                  ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(10),
-                      bottomRight: Radius.circular(10),
-                    ),
-                    child: Image.network(
-                      cleanup.photoUrls.first,
-                      width: 96,
-                      height: 96,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, progress) {
-                        if (progress == null) return child;
-                        return Container(
-                          width: 96,
-                          height: 96,
-                          color: _lightMint,
-                          child: const Center(
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stack) {
-                        return Container(
-                          width: 96,
-                          height: 96,
-                          color: _lightMint,
-                          child: const Center(
-                            child: Icon(Icons.broken_image),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                ] else ...[
-                  Container(
-                    width: 96,
-                    height: 96,
-                    margin: const EdgeInsets.only(right: 16),
-                    decoration: BoxDecoration(
-                      color: scheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(Icons.photo,
-                        size: 32, color: scheme.onPrimaryContainer),
-                  ),
-                ],
+                if (thumb != null)
+                  _image(_absolute(thumb))
+                else
+                  _placeholder(),
 
-                // details
+                const SizedBox(width: 16),
+
+                /* ── details ── */
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Cleanup title',
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall
-                                ?.copyWith(color: scheme.onSurfaceVariant)),
-                        const SizedBox(height: 2),
                         Text(
                           cleanup.title,
                           maxLines: 1,
@@ -236,7 +185,7 @@ class _CleanupCard extends StatelessWidget {
                                 color: scheme.primary,
                               ),
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 6),
                         Row(
                           children: [
                             const Icon(Icons.calendar_today, size: 14),
@@ -265,38 +214,32 @@ class _CleanupCard extends StatelessWidget {
                           spacing: 6,
                           runSpacing: -6,
                           children: [
-                            // STATUS chip
                             Chip(
-                              label: Text(status),
+                              label: Text(statusCap),
                               visualDensity: VisualDensity.compact,
                               padding: EdgeInsets.zero,
                               labelStyle: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: isPending
                                     ? _borderGreen
-                                    : _statusColor(status, scheme),
+                                    : _statusColor(statusCap, scheme),
                               ),
                               backgroundColor: isPending
                                   ? _lightMint
-                                  : _statusColor(status, scheme).withOpacity(.15),
+                                  : _statusColor(statusCap, scheme).withOpacity(.15),
                             ),
-                            // SEVERITY chip
-                            Builder(builder: (_) {
-                              final sev = cleanup.severity.toLowerCase();
-                              final bg  = _severityBg(sev);
-                              final tCol = (sev == 'moderate' || sev == 'high')
-                                  ? Colors.white
-                                  : _borderGreen;
-                              return Chip(
-                                label: Text(
-                                  cleanup.severity.capitalize(),
-                                  style: TextStyle(color: tCol),
-                                ),
-                                padding: EdgeInsets.zero,
-                                visualDensity: VisualDensity.compact,
-                                backgroundColor: bg,
-                              );
-                            }),
+                            Chip(
+                              label: Text(cleanup.severity.capitalize()),
+                              visualDensity: VisualDensity.compact,
+                              padding: EdgeInsets.zero,
+                              backgroundColor: _severityBg(cleanup.severity),
+                              labelStyle: TextStyle(
+                                color: (cleanup.severity == 'moderate' ||
+                                        cleanup.severity == 'high')
+                                    ? Colors.white
+                                    : _borderGreen,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -306,10 +249,8 @@ class _CleanupCard extends StatelessWidget {
                                 size: 16, color: scheme.primary.withOpacity(.8)),
                             const SizedBox(width: 4),
                             Expanded(
-                              child: Text(
-                                cleanup.location,
-                                style: const TextStyle(fontSize: 14),
-                              ),
+                              child: Text(cleanup.location,
+                                  style: const TextStyle(fontSize: 14)),
                             ),
                           ],
                         ),
@@ -324,9 +265,43 @@ class _CleanupCard extends StatelessWidget {
       ),
     );
   }
-}
 
-/*────────────────── extension ──────────────────*/
+  Widget _image(String url) {
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        topRight: Radius.circular(10),
+        bottomRight: Radius.circular(10),
+      ),
+      child: Image.network(
+        url,
+        width : 96,
+        height: 96,
+        fit   : BoxFit.cover,
+        loadingBuilder: (c, child, prog) =>
+            prog == null ? child : _loadingBox(),
+        errorBuilder   : (_, __, ___) => _placeholder(),
+      ),
+    );
+  }
+
+  Widget _loadingBox() => Container(
+        width: 96,
+        height: 96,
+        color : _lightMint,
+        child : const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      );
+
+  Widget _placeholder() => Container(
+        width : 96,
+        height: 96,
+        margin: const EdgeInsets.only(right: 16),
+        decoration: BoxDecoration(
+          color: _lightMint,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Icon(Icons.photo, size: 32),
+      );
+}
 
 extension CapExt on String {
   String capitalize() =>
