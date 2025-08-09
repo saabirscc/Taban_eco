@@ -27,7 +27,8 @@
         "responsive_framework",
         "shared_preferences",
         "url_launcher",
-        "video_player"
+        "video_player",
+        "visibility_detector"
       ],
       "devDependencies": [
         "flutter_launcher_icons",
@@ -148,6 +149,13 @@
       ]
     },
     {
+      "name": "visibility_detector",
+      "version": "0.2.2",
+      "dependencies": [
+        "flutter"
+      ]
+    },
+    {
       "name": "fluttertoast",
       "version": "8.2.12",
       "dependencies": [
@@ -257,7 +265,7 @@
     },
     {
       "name": "go_router",
-      "version": "15.2.4",
+      "version": "16.0.0",
       "dependencies": [
         "collection",
         "flutter",

@@ -1,4 +1,4 @@
-// lib/models/education_content.dart
+import '../services/auth_service.dart';
 
 class EducationContent {
   final String id;
@@ -17,7 +17,7 @@ class EducationContent {
   final List<String> afterImages;
 
   // meta
-  int likeCount;
+  int  likeCount;
   bool likedByMe;
   List<Comment> comments;
 
@@ -35,18 +35,32 @@ class EducationContent {
     required this.comments,
   });
 
-  /* ───────────────── factory ───────────────── */
-  factory EducationContent.fromJson(
-    Map<String, dynamic> j,
-    String myId,
-  ) {
-    List<String> _stringList(dynamic v) {
-      if (v == null) return [];
-      if (v is List) return v.map((e) => e.toString()).toList();
-      if (v is String && v.isNotEmpty) return [v];
-      return [];
-    }
+  /* ───────────────────────── helpers ───────────────────────── */
 
+  /// Converts:
+  ///   • localhost / 127.0.0.1 → device-reachable host
+  ///   • bare "/uploads/foo.jpg" → absolute URL
+  static String _fixUrl(String? url) {
+    if (url == null || url.isEmpty) return '';
+    final base = AuthService.baseUrl.replaceAll('/api', '');
+    if (url.startsWith('http://localhost') ||
+        url.startsWith('http://127.0.0.1')) {
+      return url.replaceFirst(RegExp(r'http://[^/]+'), base);
+    }
+    if (url.startsWith('/')) return '$base$url';
+    return url;
+  }
+
+  static List<String> _stringList(dynamic v) {
+    if (v == null) return [];
+    if (v is List)  return v.map((e) => e.toString()).toList();
+    if (v is String && v.isNotEmpty) return [v];
+    return [];
+  }
+
+  /* ───────────────────────── factory ───────────────────────── */
+
+  factory EducationContent.fromJson(Map<String, dynamic> j, String myId) {
     final likes        = _stringList(j['likes']);
     final commentsJson = (j['comments'] ?? []) as List;
 
@@ -56,13 +70,11 @@ class EducationContent {
       description : j['description']?.toString() ?? '',
       kind        : j['kind']?.toString() ?? '',
 
-      /* for image / video posts; null for comparison */
-      fileUrl     : j['fileUrl']?.toString(),
-      thumbUrl    : j['thumbUrl']?.toString(),
+      fileUrl     : _fixUrl(j['fileUrl']?.toString()),
+      thumbUrl    : _fixUrl(j['thumbUrl']?.toString()),
 
-      /* for comparison posts */
-      beforeImages: _stringList(j['beforeImages']),
-      afterImages : _stringList(j['afterImages']),
+      beforeImages: _stringList(j['beforeImages']).map(_fixUrl).toList(),
+      afterImages : _stringList(j['afterImages']).map(_fixUrl).toList(),
 
       likeCount   : likes.length,
       likedByMe   : likes.contains(myId),
@@ -70,6 +82,8 @@ class EducationContent {
     );
   }
 }
+
+/* ───────────────────────── comment sub-model ───────────────────────── */
 
 class Comment {
   final String id;
@@ -92,7 +106,7 @@ class Comment {
     return Comment(
       id       : j['_id']?.toString() ?? '',
       userName : user['fullName']?.toString() ?? 'Unknown',
-      avatar   : user['profilePicture']?.toString(),
+      avatar   : EducationContent._fixUrl(user['profilePicture']?.toString()),
       text     : j['text']?.toString() ?? '',
     );
   }

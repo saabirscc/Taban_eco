@@ -38,7 +38,7 @@ dependencies:
   geocoding: ^2.0.5
 
   # ─── match the SDK’s intl pin (flutter_localizations brings in 0.19.0) ───
-  intl: ^0.19.0
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:

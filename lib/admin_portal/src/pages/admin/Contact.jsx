@@ -1,6 +1,6 @@
-
 import { useState } from 'react';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const ContactSection = () => {
   const [formData, setFormData] = useState({
@@ -11,7 +11,6 @@ const ContactSection = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here you would typically send the data to your backend
     console.log('Form submitted:', formData);
     alert('Thank you for your message! We will get back to you soon.');
     setFormData({ name: '', email: '', message: '' });
@@ -24,21 +23,57 @@ const ContactSection = () => {
     });
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5
+      }
+    }
+  };
+
   return (
     <section id="contact" className="py-20 bg-white">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
           <h2 className="text-4xl font-bold text-gray-800 mb-4">
-            Contact <span className="text-green-600">CleanCity</span>
+            Contact <span className="text-green-600">Eco Volunteer</span>
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Have questions or want to get involved? Reach out to our team.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-12">
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="grid md:grid-cols-2 gap-12"
+        >
           {/* Contact Form */}
-          <div className="bg-gray-50 rounded-xl p-8 shadow-sm">
+          <motion.div 
+            variants={itemVariants}
+            className="bg-gray-50 rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow duration-300"
+          >
             <h3 className="text-2xl font-semibold text-gray-800 mb-6">Send us a message</h3>
             
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -46,7 +81,8 @@ const ContactSection = () => {
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                   Name
                 </label>
-                <input
+                <motion.input
+                  whileFocus={{ scale: 1.02 }}
                   type="text"
                   id="name"
                   name="name"
@@ -62,7 +98,8 @@ const ContactSection = () => {
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                   Email
                 </label>
-                <input
+                <motion.input
+                  whileFocus={{ scale: 1.02 }}
                   type="email"
                   id="email"
                   name="email"
@@ -78,7 +115,8 @@ const ContactSection = () => {
                 <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
                   Message
                 </label>
-                <textarea
+                <motion.textarea
+                  whileFocus={{ scale: 1.02 }}
                   id="message"
                   name="message"
                   value={formData.message}
@@ -90,57 +128,71 @@ const ContactSection = () => {
                 />
               </div>
 
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 type="submit"
-                className="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors shadow-md"
+                className="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all shadow-md"
               >
                 <Send className="w-5 h-5" />
                 Send Message
-              </button>
+              </motion.button>
             </form>
-          </div>
+          </motion.div>
 
           {/* Contact Info */}
-          <div className="bg-gray-50 rounded-xl p-8 shadow-sm">
+          <motion.div 
+            variants={itemVariants}
+            className="bg-gray-50 rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow duration-300"
+          >
             <h3 className="text-2xl font-semibold text-gray-800 mb-6">Contact Information</h3>
             
             <div className="space-y-6">
-              <div className="flex items-start gap-4">
+              <motion.div 
+                whileHover={{ x: 5 }}
+                className="flex items-start gap-4"
+              >
                 <div className="bg-green-100 p-3 rounded-full">
                   <Mail className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-800">Email</h4>
-                  <a href="mailto:hello@cleancity.com" className="text-green-600 hover:underline">
-                    cleancity@gmail.com
+                  <a href="mailto:thaprinmohamett1333@gmail.com" className="text-green-600 hover:underline">
+                    thaprinmohamett1333@gmail.com
                   </a>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="flex items-start gap-4">
+              <motion.div 
+                whileHover={{ x: 5 }}
+                className="flex items-start gap-4"
+              >
                 <div className="bg-green-100 p-3 rounded-full">
                   <Phone className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-800">Phone</h4>
-                  <a href="tel:+15551234567" className="text-green-600 hover:underline">
+                  <a href="tel:+252612011700" className="text-green-600 hover:underline">
                     +252 61 2011700
                   </a>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="flex items-start gap-4">
+              <motion.div 
+                whileHover={{ x: 5 }}
+                className="flex items-start gap-4"
+              >
                 <div className="bg-green-100 p-3 rounded-full">
                   <MapPin className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-800">Address</h4>
-                  <p className="text-gray-600"> mogadishu wadajir, korantada</p>
+                  <p className="text-gray-600">mogadishu wadajir, korantada</p>
                 </div>
-              </div>
+              </motion.div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );

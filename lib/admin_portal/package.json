@@ -21,6 +21,7 @@
     "lucide-react": "^0.525.0",
     "react": "^19.1.0",
     "react-chartjs-2": "^5.3.0",
+    "react-compare-image": "^3.5.7",
     "react-datepicker": "^8.4.0",
     "react-dom": "^19.1.0",
     "react-hot-toast": "^2.5.2",
@@ -32,6 +33,7 @@
   "devDependencies": {
     "@types/react-toastify": "^4.1.0",
     "autoprefixer": "^10.4.21",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17"
   },

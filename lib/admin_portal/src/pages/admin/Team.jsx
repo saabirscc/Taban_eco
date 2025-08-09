@@ -1,55 +1,53 @@
-import { Linkedin, Twitter, Github } from 'lucide-react';
+import { Linkedin, Github, Facebook } from 'lucide-react';
 
-// Using placeholder.cc service for consistent placeholder images
-const team1 = 'https://i.pinimg.com/736x/a7/b8/65/a7b86534cfa9889a9dd72e99c10acbf3.jpg';
-const team2 = 'https://i.pinimg.com/736x/4a/b2/af/4ab2af26e00092ca45805920666d5a3e.jpg';
-const team3 = 'https://i.pinimg.com/736x/c1/4b/cf/c14bcffa07a72439ab9cba58811f94da.jpg';
-const team4 = 'https://i.pinimg.com/736x/a1/18/2f/a1182f1dcb1e9afda517026981fa826e.jpg';
+// Import images directly
+import rinaImage from '../../assets/images/rina.jpeg';
+import anazImage from '../../assets/images/anaz.jpeg';
+import sabirinImage from '../../assets/images/sabirin.jpeg';
+import isseImage from '../../assets/images/isse.jpeg';
 
 const TeamSection = () => {
   const teamMembers = [
     {
       name: 'Sabirin Mohamed Ali',
-      role: 'fullstack Developer',
-      image: team1,
+      role: 'fullstack and mobile app Developer',
+      image: rinaImage,
       quote: 'Clean code, clean cities - that\'s my motto!',
       social: {
-        linkedin: '#',
-        twitter: '#',
-        github: '#'
+        linkedin: 'https://www.linkedin.com/in/sabirin-mohamed-ali-4a4bb9261/',
+        facebook: 'https://www.facebook.com/sapirin.mohammet',
+        github: 'https://github.com/SabirinMohamedAli'
       }
     },
     {
       name: 'Anaz Abdi Dhowrane',
-      role: 'Team Lead',
-      image: team2,
+      role: 'frontend Developer and UI/UX Designer',
+      image: anazImage,
       quote: 'Leading change, one cleanup at a time.',
       social: {
-        linkedin: '#',
-        twitter: '#',
-        github: '#'
+        facebook: 'https://www.facebook.com/share/19Ub9tvJjQ/?mibextid=wwXIfr',
+        github: 'https://github.com/anaz-payet'
       }
     },
     {
       name: 'Sabirin Mohamud Adan',
-      role: 'Environmental Specialist',
-      image: team3,
+      role: 'fullstack Developer',
+      image: sabirinImage,
       quote: 'Every small action creates ripples of positive change.',
       social: {
-        linkedin: '#',
-        twitter: '#',
-        github: '#'
+        linkedin: 'https://www.linkedin.com/in/sabirin-mohamud-840711331?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app',
+        facebook: 'https://www.facebook.com/share/1Foafx7h5K/',
+        github: 'https://github.com/SabirinMohamudAdan'
       }
     },
     {
       name: 'Isse Adam Abdirahman',
-      role: 'tacbaan tacbaan lagu daray',
-      image: team4,
+      role: 'frontend Developer',
+      image: isseImage,
       quote: 'Designing experiences that inspire environmental action.',
       social: {
-        linkedin: 'https://www.linkedin.com/in/sabirin-mohamed-ali-4a4bb9261/',
-        twitter: '#',
-        github: 'https://github.com/SabirinMohamedAli'
+        facebook: 'https://www.facebook.com/share/16i4MoabdE/',
+        github: 'https://github.com/iseAdam'
       }
     }
   ];
@@ -80,6 +78,10 @@ const TeamSection = () => {
                     src={member.image}
                     alt={member.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://via.placeholder.com/150'; // Fallback image
+                    }}
                   />
                 </div>
               </div>
@@ -104,27 +106,39 @@ const TeamSection = () => {
 
                 {/* Social Links */}
                 <div className="flex justify-center space-x-4">
-                  <a 
-                    href={member.social.linkedin}
-                    className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center hover:bg-green-600 hover:text-white transition-all duration-200"
-                    aria-label={`${member.name} LinkedIn`}
-                  >
-                    <Linkedin className="w-5 h-5" />
-                  </a>
-                  <a 
-                    href={member.social.twitter}
-                    className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center hover:bg-green-600 hover:text-white transition-all duration-200"
-                    aria-label={`${member.name} Twitter`}
-                  >
-                    <Twitter className="w-5 h-5" />
-                  </a>
-                  <a 
-                    href={member.social.github}
-                    className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center hover:bg-green-600 hover:text-white transition-all duration-200"
-                    aria-label={`${member.name} GitHub`}
-                  >
-                    <Github className="w-5 h-5" />
-                  </a>
+                  {member.social.linkedin && (
+                    <a 
+                      href={member.social.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center hover:bg-green-600 hover:text-white transition-all duration-200"
+                      aria-label={`${member.name} LinkedIn`}
+                    >
+                      <Linkedin className="w-5 h-5" />
+                    </a>
+                  )}
+                  {member.social.facebook && (
+                    <a 
+                      href={member.social.facebook}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center hover:bg-green-600 hover:text-white transition-all duration-200"
+                      aria-label={`${member.name} Facebook`}
+                    >
+                      <Facebook className="w-5 h-5" />
+                    </a>
+                  )}
+                  {member.social.github && (
+                    <a 
+                      href={member.social.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center hover:bg-green-600 hover:text-white transition-all duration-200"
+                      aria-label={`${member.name} GitHub`}
+                    >
+                      <Github className="w-5 h-5" />
+                    </a>
+                  )}
                 </div>
               </div>
             </div>

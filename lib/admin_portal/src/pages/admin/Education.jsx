@@ -1,3 +1,4 @@
+//lib/admin_portal/src/pages/admin/Education.jsx
 import React, { Fragment, useEffect, useState } from "react";
 import { api } from "../../lib/api";
 
@@ -351,3 +352,15 @@ function Modal({children,onClose}){
     </Fragment>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+

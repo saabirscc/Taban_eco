@@ -147,6 +147,8 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+//import { ThemeProvider } from './contexts/ThemeContext'; // ✅ Added ThemeProvider
+
 
 // Components
 import Navbar from './components/Navbar';
@@ -157,6 +159,8 @@ import Team from './pages/admin/Team';
 import Contact from './pages/admin/Contact';
 import Footer from './components/Footer';
 import BackToTop from './components/BackToTop';
+import HowItWorks from './pages/HowItWorks.'; // ✅ NEW - Import HowItWorks
+
 
 // Admin components
 import AdminLayout from './layouts/AdminLayout';
@@ -173,6 +177,7 @@ import Settings from './pages/admin/Settings';
 import PostCleanupStory from './pages/admin/PostCleanupStory'; // ✅ NEW
 import StoriesGallery from './pages/admin/StoriesGallery'; // ✅ NEW
 
+
 // Public landing layout
 const MainLayout = () => {
   return (
@@ -181,6 +186,7 @@ const MainLayout = () => {
       <main>
         <Hero />
         <About />
+        <HowItWorks />
         <Features />
         <Team />
         <Contact />

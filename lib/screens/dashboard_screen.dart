@@ -262,15 +262,16 @@ class _DashboardScreenState extends State<DashboardScreen>
       case 2:
         return const RewardsScreen();
       case 3:
-        return const ProfileTab();
-      case 4:
         return const FeedbackScreen();
+      case 4:
+        return const ContactScreen();
       case 5:
-        return const StoriesScreen(); // Add this line for the Stories tab
+        return const ProfileTab(); 
       default:
         return const SizedBox.shrink();
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -307,17 +308,21 @@ class _DashboardScreenState extends State<DashboardScreen>
             icon: Icon(Icons.emoji_events),
             label: 'Rewards',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.person),
+          //   label: 'Profile',
+          // ),
           BottomNavigationBarItem(
             icon: Icon(Icons.feedback),
             label: 'Feedback',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: 'Stories', // Add this tab
+            icon: Icon(Icons.contact_phone),
+            label: 'contact', // Add this tab
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ).animate().fadeIn(delay: 200.ms),
