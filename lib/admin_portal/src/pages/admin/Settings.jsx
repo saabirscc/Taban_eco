@@ -996,7 +996,7 @@ const SettingsPage = () => {
               onClick={() => setActiveTab("profile")}
               className={`w-full flex items-center p-3 rounded-lg transition-colors ${
                 activeTab === "profile"
-                  ? "bg-blue-100 text-blue-700"
+                  ? "bg-green-100 text-green-700"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
             >
@@ -1007,7 +1007,7 @@ const SettingsPage = () => {
               onClick={() => setActiveTab("system")}
               className={`w-full flex items-center p-3 rounded-lg transition-colors ${
                 activeTab === "system"
-                  ? "bg-blue-100 text-blue-700"
+                  ? "bg-green-100 text-green-700"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
             >
@@ -1018,7 +1018,7 @@ const SettingsPage = () => {
               onClick={() => setActiveTab("admins")}
               className={`w-full flex items-center p-3 rounded-lg transition-colors ${
                 activeTab === "admins"
-                  ? "bg-blue-100 text-blue-700"
+                  ? "bg-green-100 text-green-700"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
             >
@@ -1040,8 +1040,8 @@ const SettingsPage = () => {
         )}
 
         {loading && (
-          <div className="mb-6 p-4 bg-blue-100 text-blue-800 rounded-lg flex items-center">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-800 mr-3"></div>
+          <div className="mb-6 p-4 bg-green-100 text-green-800 rounded-lg flex items-center">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-800 mr-3"></div>
             Processing...
           </div>
         )}
@@ -1062,7 +1062,7 @@ const SettingsPage = () => {
                     type="text"
                     value={profile.fullName}
                     onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     required
                   />
                 </div>
@@ -1072,7 +1072,7 @@ const SettingsPage = () => {
                     type="email"
                     value={profile.email}
                     onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     required
                   />
                 </div>
@@ -1082,7 +1082,7 @@ const SettingsPage = () => {
                     type="password"
                     value={profile.password}
                     onChange={(e) => setProfile({ ...profile, password: e.target.value })}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     placeholder="Leave blank to keep current password"
                     minLength={8}
                   />
@@ -1092,7 +1092,7 @@ const SettingsPage = () => {
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center disabled:opacity-50"
+                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center disabled:opacity-50"
                   disabled={loading}
                 >
                   <FiSave className="mr-2" /> {loading ? "Saving..." : "Save Changes"}
@@ -1115,13 +1115,13 @@ const SettingsPage = () => {
                   type="text"
                   value={system.systemName}
                   onChange={(e) => setSystem({ systemName: e.target.value })}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 />
               </div>
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center disabled:opacity-50"
+                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center disabled:opacity-50"
                   disabled={loading}
                 >
                   <FiSave className="mr-2" /> {loading ? "Saving..." : "Save Changes"}
@@ -1148,7 +1148,7 @@ const SettingsPage = () => {
                     setErrors({});
                     setIsAddingAdmin(true);
                   }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center"
                 >
                   <FiPlus className="mr-2" /> Add Admin
                 </button>
@@ -1165,7 +1165,7 @@ const SettingsPage = () => {
                         type="text"
                         value={newAdmin.fullName}
                         onChange={(e) => setNewAdmin({ ...newAdmin, fullName: e.target.value })}
-                        className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full p-2 border border-gray-300 rounded focus:ring-green-500 focus:border-green-500"
                         required
                       />
                     </div>
@@ -1175,7 +1175,7 @@ const SettingsPage = () => {
                         type="email"
                         value={newAdmin.email}
                         onChange={(e) => setNewAdmin({ ...newAdmin, email: e.target.value })}
-                        className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full p-2 border border-gray-300 rounded focus:ring-green-500 focus:border-green-500"
                         required
                       />
                     </div>
@@ -1187,7 +1187,7 @@ const SettingsPage = () => {
                         type="password"
                         value={newAdmin.password}
                         onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })}
-                        className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full p-2 border border-gray-300 rounded focus:ring-green-500 focus:border-green-500"
                         required
                         minLength={8}
                       />
@@ -1202,7 +1202,7 @@ const SettingsPage = () => {
                     </button>
                     <button
                       onClick={handleAddAdmin}
-                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center disabled:opacity-50"
+                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center disabled:opacity-50"
                       disabled={loading}
                     >
                       <FiSave className="mr-2" /> {loading ? "Adding..." : "Add Admin"}
@@ -1250,7 +1250,7 @@ const SettingsPage = () => {
                                 onChange={(e) =>
                                   setEditAdmin((s) => ({ ...s, fullName: e.target.value }))
                                 }
-                                className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full p-2 border border-gray-300 rounded focus:ring-green-500 focus:border-green-500"
                               />
                             )}
                           </td>
@@ -1266,7 +1266,7 @@ const SettingsPage = () => {
                                 onChange={(e) =>
                                   setEditAdmin((s) => ({ ...s, email: e.target.value }))
                                 }
-                                className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full p-2 border border-gray-300 rounded focus:ring-green-500 focus:border-green-500"
                               />
                             )}
                           </td>
@@ -1316,7 +1316,7 @@ const SettingsPage = () => {
                               <>
                                 <button
                                   onClick={() => startEdit(admin)}
-                                  className="text-blue-600 hover:text-blue-900 mr-4"
+                                  className="text-green-600 hover:text-green-900 mr-4"
                                 >
                                   <FiEdit className="inline" />
                                 </button>
@@ -1341,7 +1341,7 @@ const SettingsPage = () => {
                                     onChange={(e) =>
                                       setEditAdmin((s) => ({ ...s, password: e.target.value }))
                                     }
-                                    className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full p-2 border border-gray-300 rounded focus:ring-green-500 focus:border-green-500"
                                     placeholder="Leave blank to keep current password"
                                     minLength={8}
                                   />
@@ -1355,7 +1355,7 @@ const SettingsPage = () => {
                                   </button>
                                   <button
                                     onClick={() => handleSaveEdit(admin._id)}
-                                    className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center disabled:opacity-50"
+                                    className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center disabled:opacity-50"
                                     disabled={loading}
                                   >
                                     <FiSave className="mr-1" /> {loading ? "Saving..." : "Save"}
